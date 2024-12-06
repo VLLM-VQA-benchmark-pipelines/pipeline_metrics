@@ -121,3 +121,25 @@ class MetricEvaluator:
         grouped = df.groupby(['doc_class', 'question_type'])['wer_error', 'cer_error', 'bleu_score'].mean().reset_index()
         
         return grouped
+
+    def calculate_metrics_general(self):
+        """
+        Расчет метрик по общему корпусу данных.
+        :return: Словарь с метриками WER, CER и BLEU.
+        """
+        true_answers = []
+        pred_answers = []
+        
+        for row in range(len(self.true_csv)):
+            true_answers.extend(ast.literal_eval(self.true_csv['answers'][row]))
+            pred_answers.extend(ast.literal_eval(self.pred_csv['answers'][row]))
+        
+        wer_error = wer(true_answers, pred_answers)
+        cer_error = cer(true_answers, pred_answers)
+        bleu_score = sacrebleu.corpus_bleu(true_answers, [pred_answers]).score
+
+        return {
+            'wer_error': wer_error,
+            'cer_error': cer_error,
+            'bleu_score': bleu_score
+        }
